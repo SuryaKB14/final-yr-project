@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Summarizer</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 40px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    background: #444;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button.active {
+    background: green;
+}
+
+textarea {
+    width: 60%;
+    height: 120px;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+input {
+    margin-top: 15px;
+}
+
+.main-btn {
+    background: orange;
+    margin-top: 15px;
+}
+
+#output-box {
+    margin-top: 20px;
+    background: white;
+    color: black;
+    padding: 15px;
+    border-radius: 8px;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<h2>AI Summarizer</h2>
+
+<!-- MODE BUTTONS -->
+<div>
+    <button id="textBtn" class="active" onclick="setMode('text')">Text</button>
+    <button id="pdfBtn" onclick="setMode('pdf')">PDF</button>
+    <button id="ytBtn" onclick="setMode('youtube')">YouTube</button>
+</div>
+
+<!-- TEXT INPUT -->
+<div id="textInput">
+    <textarea id="textData" placeholder="Paste text here..."></textarea>
+</div>
+
+<!-- PDF INPUT -->
+<div id="pdfInput" style="display:none;">
+    <input type="file" id="pdfFile" accept="application/pdf">
+</div>
+
+<!-- YOUTUBE INPUT -->
+<div id="ytInput" style="display:none;">
+    <input type="text" id="ytUrl" placeholder="Enter YouTube URL">
+</div>
+
+<br>
+
+<button class="main-btn" onclick="summarize()">Summarize</button>
+
+<!-- OUTPUT -->
+<div id="output-box">
+    <h3>Summary</h3>
+    <p id="summary-text"></p>
+</div>
+
+<script>
+let mode = "text";
+
+function setMode(selectedMode) {
+    mode = selectedMode;
+
+    // Hide all inputs
+    document.getElementById("textInput").style.display = "none";
+    document.getElementById("pdfInput").style.display = "none";
+    document.getElementById("ytInput").style.display = "none";
+
+    // Remove active class
+    document.getElementById("textBtn").classList.remove("active");
+    document.getElementById("pdfBtn").classList.remove("active");
+    document.getElementById("ytBtn").classList.remove("active");
+
+    // Show selected input + highlight button
+    if (mode === "text") {
+        document.getElementById("textInput").style.display = "block";
+        document.getElementById("textBtn").classList.add("active");
+    }
+
+    if (mode === "pdf") {
+        document.getElementById("pdfInput").style.display = "block";
+        document.getElementById("pdfBtn").classList.add("active");
+    }
+
+    if (mode === "youtube") {
+        document.getElementById("ytInput").style.display = "block";
+        document.getElementById("ytBtn").classList.add("active");
+    }
+}
+
+async function summarize() {
+
+    try {
+        let res;
+
+        // TEXT
+        if (mode === "text") {
+
+            const text = document.getElementById("textData").value;
+
+            if (!text.trim()) {
+                alert("Enter text");
+                return;
+            }
+
+            res = await fetch("http://127.0.0.1:5000/summarize/text", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ text })
+            });
+        }
+
+        // PDF
+        else if (mode === "pdf") {
+
+            const file = document.getElementById("pdfFile").files[0];
+
+            if (!file) {
+                alert("Upload a PDF");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            res = await fetch("http://127.0.0.1:5000/summarize/pdf", {
+                method: "POST",
+                body: formData
+            });
+        }
+
+        // YOUTUBE
+        else if (mode === "youtube") {
+
+            const url = document.getElementById("ytUrl").value;
+
+            if (!url.trim()) {
+                alert("Enter YouTube URL");
+                return;
+            }
+
+            res = await fetch("http://127.0.0.1:5000/summarize/youtube", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ url })
+            });
+        }
+
+        const data = await res.json();
+
+        document.getElementById("summary-text").innerText = data.summary;
+        document.getElementById("output-box").style.display = "block";
+
+    } catch (err) {
+        console.error(err);
+        alert("Error connecting to backend");
+    }
+}
+</script>
+
+</body>
+</html>

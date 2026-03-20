@@ -1,0 +1,267 @@
+<!---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZStudy | Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-logo">
+            🤖 EZStudy
+        </div>
+        <div class="nav-menu">
+            <a href="home.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="tools.html" class="active"><i class="fas fa-tools"></i> Tools</a>
+            <a href="help.html"><i class="fas fa-question-circle"></i> Help</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>AI-Powered EZStudy Tools</h1>
+            <p>Select any tool below to enhance your learning experience with artificial intelligence.</p>
+        </div>
+
+        <div class="tools-grid">
+            <!- AI Summarizer Tool 
+           
+                </div><div class="tool-card">
+                  <h3>AI Summarizer</h3>
+                <p>Convert long articles into concise summaries using AI.</p>
+
+                <div style="margin-top:20px;">
+                <a href="summarizer.html">
+                     <button class="btn">Access</button> </a>
+                   </div>
+
+
+
+
+            <!- Notes Tool 
+            <div class="tool-card" onclick="openTool('notes')">
+                
+                <h3>Smart Notes</h3>
+                <p>Create, organize, and manage your study notes with AI suggestions.</p>
+                <div style="margin-top: 20px;">
+                      <button>Access</button></a>
+                </div>
+            </div>
+
+            <!- Flashcards Tool 
+            <div class="tool-card" onclick="openTool('flashcards')">
+                
+                <h3>Flashcards Creator</h3>
+                <p>Generate interactive flashcards for effective memorization.</p>
+                <div style="margin-top: 20px;">
+                      <button>Access</button></a>
+                </div>
+            </div>
+
+            <!- Quiz Generator 
+            <div class="tool-card" onclick="openTool('quiz')">
+               
+                <h3>Quiz Generator</h3>
+                <p>Create practice quizzes from your study materials automatically.</p>
+                <div style="margin-top: 20px;">
+                    <span class="btn btn-small">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <!- AI Summarizer Tool Interface 
+        <div id="summarizer-tool" class="card" style="display: none;">
+            <h2><i class="fas fa-file-alt"></i> AI Summarizer</h2>
+            <p>Paste your text below and let AI create a concise summary.</p>
+            
+            <div class="form-group">
+                <label class="form-label">Enter Text to Summarize</label>
+                <textarea id="summ-text" class="input-field" placeholder="Paste your article, textbook content, or study material here..."></textarea>
+            </div>
+            
+            <button class="btn" onclick="summarize()">
+                <i class="fas fa-robot"></i> Generate Summary
+            </button>
+            
+            <div id="summary-result" class="result-box" style="display: none;">
+                <h4><i class="fas fa-star"></i> AI Summary</h4>
+                <p id="summary-output">Your summary will appear here...</p>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeTool('summarizer')">
+                    <i class="fas fa-arrow-left"></i> Back to Tools
+                </button>
+            </div>
+        </div>
+
+        < Notes Tool Interface
+        <div id="notes-tool" class="card" style="display: none;">
+            <h2><i class="fas fa-edit"></i> Smart Notes</h2>
+            <p>Create and manage your study notes. All notes are saved automatically.</p>
+            
+            <div class="form-group">
+                <label class="form-label">Add New Note</label>
+                <textarea id="note-text" class="input-field" placeholder="Type your note here..."></textarea>
+            </div>
+            
+            <button class="btn" onclick="addNote()">
+                <i class="fas fa-plus"></i> Save Note
+            </button>
+            
+            <div id="notes-list" class="result-box" style="margin-top: 30px;">
+                <h4><i class="fas fa-list"></i> Your Notes</h4>
+                <div id="notes-container">
+                    <!- Notes will appear here 
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeTool('notes')">
+                    <i class="fas fa-arrow-left"></i> Back to Tools
+                </button>
+            </div>
+        </div>
+
+        <!- Flashcards Tool Interface 
+        <div id="flashcards-tool" class="card" style="display: none;">
+            <h2><i class="fas fa-layer-group"></i> Flashcards Creator</h2>
+            <p>Create flashcards for effective memorization and review.</p>
+            
+            <div class="form-group">
+                <label class="form-label">Question</label>
+                <input id="flashcard-question" type="text" class="input-field" placeholder="Enter the question...">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Answer</label>
+                <textarea id="flashcard-answer" class="input-field" placeholder="Enter the answer..." rows="3"></textarea>
+            </div>
+            
+            <button class="btn" onclick="addFlashcard()">
+                <i class="fas fa-plus-circle"></i> Add Flashcard
+            </button>
+            
+            <div id="flashcards-list" class="result-box" style="margin-top: 30px;">
+                <h4><i class="fas fa-cards"></i> Your Flashcards</h4>
+                <div id="flashcards-container" class="flashcards-container">
+                    <!- Flashcards will appear here 
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeTool('flashcards')">
+                    <i class="fas fa-arrow-left"></i> Back to Tools
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>AI Learning Platform | Tools Dashboard</p>
+    </div>
+
+    <script>
+        function logout() {
+            if(confirm("Are you sure you want to logout?")) {
+                window.location.href = "index.html";
+            }
+        }
+
+        function openTool(toolName) {
+            // Hide all tool interfaces
+            document.getElementById('summarizer-tool').style.display = 'none';
+            document.getElementById('notes-tool').style.display = 'none';
+            document.getElementById('flashcards-tool').style.display = 'none';
+            
+            // Show the selected tool
+            document.getElementById(toolName + '-tool').style.display = 'block';
+            
+            // Scroll to the tool
+            document.getElementById(toolName + '-tool').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function closeTool(toolName) {
+            // Hide the tool
+            document.getElementById(toolName + '-tool').style.display = 'none';
+            
+            // Scroll back to top
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>--->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EZStudy | AI Tools</title>
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+
+<body>
+
+<!-- SIDEBAR (LEFT) -->
+<div class="sidebar">
+  <h2 class="logo">EZStudy</h2>
+  <nav>
+    <a href="home.html">🏠 Home</a>
+    <a href="tools.html" class="active">🛠 Tools</a>
+    <a href="progress.html">📊 Progress</a>
+    <a href="profile.html">👤 Profile</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT (RIGHT) -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <h1>Smart Learning Tools</h1>
+    <div class="user">Student</div>
+  </div>
+
+  <!-- TOOLS CONTENT -->
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <h3>AI Summarizer</h3>
+      <p>Convert long notes into short summaries.</p>
+      <button onclick="window.location.href='summarizer.html'">Open</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>Flashcards Creator</h3>
+      <p>Generate flashcards automatically from PDF.</p>
+
+      <!-- ✅ NEW BUTTON ADDED HERE -->
+      <button onclick="window.location.href='flashcards.html'">Open</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>Quiz Generator</h3>
+      <p>Create adaptive quizzes.</p>
+      <button onClick="window.location.href='quiz.html'">Open</button>
+    </div>
+
+    <div class="tool-card">
+        <h3>AI Tutor</h3>
+        <p>Clear Doubts</p>
+        <button onclick="window.location.href='tutor.html' ">Open</button>
+
+
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

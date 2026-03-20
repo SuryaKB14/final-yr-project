@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Flashcard Generator</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 40px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+}
+
+input, select, button {
+    margin: 10px;
+    padding: 10px;
+    width: 80%;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.flashcards {
+    margin-top: 20px;
+    text-align: left;
+    background: #2a2a3d;
+    padding: 20px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>📚 AI Flashcard Generator</h1>
+
+    <!-- File Upload -->
+    <input type="file" id="pdfFiles" multiple>
+
+    <!-- Settings -->
+    <select id="difficulty">
+        <option>Beginner</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+    </select>
+
+    <input type="number" id="numCards" placeholder="Number of cards (e.g. 5)" value="5">
+
+    <input type="text" id="language" placeholder="Language" value="English">
+
+    <!-- Button -->
+    <button onclick="generateFlashcards()">Generate Flashcards</button>
+
+    <!-- Output -->
+    <div id="output" class="flashcards"></div>
+</div>
+
+<script>
+async function generateFlashcards() {
+    const files = document.getElementById("pdfFiles").files;
+    const difficulty = document.getElementById("difficulty").value;
+    const numCards = document.getElementById("numCards").value;
+    const language = document.getElementById("language").value;
+
+    if (files.length === 0) {
+        alert("Please upload at least one PDF");
+        return;
+    }
+
+    const formData = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append("files", files[i]);
+    }
+
+    formData.append("difficulty", difficulty);
+    formData.append("num_cards", numCards);
+    formData.append("language", language);
+
+    document.getElementById("output").innerText = "⏳ Generating flashcards...";
+
+    try {
+        const response = await fetch("http://localhost:5000/generate-flashcards", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById("output").innerText = "❌ " + data.error;
+        } else {
+            document.getElementById("output").innerText = data.flashcards;
+        }
+
+    } catch (error) {
+        document.getElementById("output").innerText = "❌ Error connecting to server";
+        console.error(error);
+    }
+}
+</script>
+
+</body>
+</html>

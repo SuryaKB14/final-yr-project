@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Generator | EZStudy</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+    padding: 30px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #6c63ff;
+    color: white;
+    cursor: pointer;
+}
+
+.question {
+    text-align: left;
+    margin-top: 20px;
+    padding: 15px;
+    background: #2c2c3c;
+    border-radius: 10px;
+}
+
+.result {
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📘 MCQ Quiz Generator</h1>
+
+<input type="file" id="pdfFile" accept="application/pdf"><br>
+
+<select id="difficulty">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+</select>
+
+<input type="number" id="num" value="5" min="3" max="10">
+
+<br>
+
+<button onclick="generateQuiz()">Generate Quiz</button>
+
+<div id="quizContainer"></div>
+
+<button onclick="submitQuiz()" id="submitBtn" style="display:none;">Submit Answers</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<script>
+
+let mcqs = [];
+
+async function generateQuiz() {
+
+    const fileInput = document.getElementById("pdfFile");
+    const difficulty = document.getElementById("difficulty").value;
+    const numQuestions = document.getElementById("num").value;
+
+    if (!fileInput.files.length) {
+        alert("Upload a PDF first!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("difficulty", difficulty);
+    formData.append("num_questions", numQuestions);
+
+    document.getElementById("quizContainer").innerHTML = "Generating quiz...";
+
+    const res = await fetch("http://127.0.0.1:5000/generate-quiz", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+
+    mcqs = data.mcqs;
+    displayQuiz();
+}
+
+function displayQuiz() {
+
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "";
+
+    mcqs.forEach((q, index) => {
+
+        let optionsHTML = "";
+
+        for (let key in q.options) {
+            optionsHTML += `
+                <label>
+                    <input type="radio" name="q${index}" value="${key}">
+                    ${key}. ${q.options[key]}
+                </label><br>
+            `;
+        }
+
+        container.innerHTML += `
+            <div class="question">
+                <h3>Q${index + 1}. ${q.question}</h3>
+                ${optionsHTML}
+            </div>
+        `;
+    });
+
+    document.getElementById("submitBtn").style.display = "block";
+}
+
+function submitQuiz() {
+
+    let score = 0;
+    let resultHTML = "<h2>Results</h2>";
+
+    mcqs.forEach((q, index) => {
+
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+
+        if (!selected) {
+            resultHTML += `<p>Q${index + 1}: Not answered</p>`;
+            return;
+        }
+
+        const userAnswer = selected.value;
+
+        if (userAnswer === q.correct_answer) {
+            score++;
+            resultHTML += `<p style="color:lightgreen;">Q${index + 1}: Correct! ${q.explanation}</p>`;
+        } else {
+            resultHTML += `<p style="color:red;">Q${index + 1}: Wrong. Correct: ${q.correct_answer}. ${q.explanation}</p>`;
+        }
+    });
+
+    resultHTML += `<h3>Score: ${score} / ${mcqs.length}</h3>`;
+
+    document.getElementById("result").innerHTML = resultHTML;
+}
+
+</script>
+
+</body>
+</html>
