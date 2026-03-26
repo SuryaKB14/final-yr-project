@@ -74,20 +74,31 @@ def get_weak_topics(user_id, selected_topic=None):
     return [row["topic"] for row in rows]
 
 
-def get_user_adaptive_difficulty(user_id):
+def get_user_adaptive_difficulty(user_id, selected_topic=None):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT AVG(accuracy) as avg_accuracy
-        FROM quiz_attempts
-        WHERE user_id = ?
-    """, (user_id,))
+    if selected_topic:
+        cursor.execute("""
+            SELECT AVG(accuracy) as avg_accuracy
+            FROM quiz_attempts
+            WHERE user_id = ? AND topic = ?
+        """, (user_id, selected_topic))
+    else:
+        cursor.execute("""
+            SELECT AVG(accuracy) as avg_accuracy
+            FROM quiz_attempts
+            WHERE user_id = ?
+        """, (user_id,))
 
     result = cursor.fetchone()
     conn.close()
 
-    avg_accuracy = result["avg_accuracy"] if result["avg_accuracy"] is not None else 0
+    avg_accuracy = result["avg_accuracy"] if result["avg_accuracy"] is not None else None
+
+    # First time user / no attempts in this topic
+    if avg_accuracy is None:
+        return "medium"
 
     if avg_accuracy < 50:
         return "easy"
@@ -275,9 +286,9 @@ def generate_quiz():
 
         print("SELECTED TOPIC FROM FRONTEND:", selected_topic)
 
-        # Adaptive logic
+        # Adaptive logic based ONLY on selected topic
         weak_topics = get_weak_topics(user_id, selected_topic)
-        difficulty = get_user_adaptive_difficulty(user_id)
+        difficulty = get_user_adaptive_difficulty(user_id, selected_topic)
 
         print("GENERATE QUIZ USER ID:", user_id)
         print("WEAK TOPICS:", weak_topics)
@@ -299,7 +310,7 @@ def generate_quiz():
         if weak_topics:
             focus = f"Focus more on these weak topics if relevant to the text: {', '.join(weak_topics)}."
         else:
-            focus = "Cover a broad range of important concepts."
+            focus = f"Focus on the selected topic: {selected_topic}."
 
         prompt = f"""
 You are a quiz creator.
@@ -311,6 +322,7 @@ Create {num_questions} multiple choice questions at {difficulty} difficulty leve
 
 IMPORTANT:
 - Return ONLY valid JSON array
+- Questions should be relevant to the selected topic
 - Each question MUST include:
   1. question
   2. topic
@@ -347,8 +359,8 @@ Return format:
 
         return jsonify({
             "mcqs": mcqs,
-            "weak_topics": weak_topics,
-            "difficulty": difficulty
+            "difficulty": difficulty,
+            "selected_topic": selected_topic
         })
 
     except Exception as e:
@@ -432,6 +444,8 @@ def save_question_responses():
     conn.close()
 
     return jsonify({"message": "Question responses saved successfully"}), 201
+
+
 # ---------------- GET WEAK TOPICS ----------------
 
 @app.route('/get-weak-topics/<int:user_id>', methods=['GET'])
@@ -459,6 +473,8 @@ def get_weak_topics_api(user_id):
     ]
 
     return jsonify({"weak_topics": weak_topic_list}), 200
+
+
 # ---------------- USER PROGRESS DASHBOARD ----------------
 
 @app.route('/get-user-progress/<int:user_id>', methods=['GET'])
@@ -505,6 +521,7 @@ def get_user_progress(user_id):
         "weak_topic": weak_topic["topic"] if weak_topic else None
     }), 200
 
+
 # ---------------- AI TUTOR ----------------
 
 def generate_ai_tutor_response(question, subject):
@@ -525,6 +542,7 @@ Provide:
     response = llm.invoke([HumanMessage(content=prompt)])
     print("LLM RESPONSE:", response.content)
     return response.content
+
 
 @app.route("/ai-tutor", methods=["POST"])
 def ai_tutor():
@@ -547,6 +565,8 @@ def ai_tutor():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+
+
 # ---------------- SUMMARIZER ----------------
 
 def get_summary(prompt):
@@ -555,6 +575,7 @@ def get_summary(prompt):
         contents=prompt
     )
     return response.text
+
 
 @app.route('/summarize/text', methods=['POST'])
 def summarize_text():
@@ -569,6 +590,7 @@ def summarize_text():
     summary = get_summary(prompt)
 
     return jsonify({"summary": summary})
+
 
 @app.route('/summarize/pdf', methods=['POST'])
 def summarize_pdf():
@@ -586,6 +608,7 @@ def summarize_pdf():
 
     return jsonify({"summary": summary})
 
+
 @app.route('/summarize/youtube', methods=['POST'])
 def summarize_youtube():
     data = request.get_json()
@@ -602,6 +625,7 @@ def summarize_youtube():
     summary = get_summary(f"Summarize this video:\n{text}")
 
     return jsonify({"summary": summary})
+
 
 @app.route('/all-users', methods=['GET'])
 def all_users():
@@ -623,6 +647,7 @@ def all_users():
     ]
 
     return jsonify({"users": user_list})
+
 
 @app.route('/test-performance', methods=['GET'])
 def test_performance():

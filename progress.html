@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EZStudy Progress</title>
+  <link rel="stylesheet" href="css/home.css" />
+
+  <style>
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-card {
+      background: white;
+      padding: 22px;
+      border-radius: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .summary-card h3 {
+      font-size: 16px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .summary-card p {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    .insight-box {
+      background: #f6fff6;
+      border-left: 6px solid #4caf50;
+      padding: 20px;
+      border-radius: 16px;
+      margin-top: 20px;
+    }
+
+    .insight-box h3 {
+      margin-bottom: 10px;
+      color: #2e7d32;
+    }
+
+    .retention-grid,
+    .recommend-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .mini-card {
+      background: #f9f9f9;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid #eee;
+    }
+
+    .mini-card h4 {
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .mini-card p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .trend-up {
+      color: green;
+      font-weight: 600;
+    }
+
+    .trend-down {
+      color: red;
+      font-weight: 600;
+    }
+
+    .subject-input {
+      padding: 12px;
+      width: 60%;
+      margin-right: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    .add-btn {
+      padding: 12px 20px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .add-btn:hover {
+      background: #43a047;
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid,
+      .retention-grid,
+      .recommend-grid,
+      .sw-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .subject-input {
+        width: 100%;
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2 class="logo">EZStudy</h2>
+  <nav>
+    <a href="home.html">🏠 Home</a>
+    <a href="tools.html">🛠 Tools</a>
+    <a href="progress.html" class="active">📊 Progress</a>
+    <a href="profile.html">👤 Profile</a>
+  </nav>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <h1>Learning Progress</h1>
+    <div class="user">Student</div>
+  </header>
+
+  <!-- PROGRESS SUMMARY -->
+  <section class="summary-grid">
+    <div class="summary-card">
+      <h3>Total Study Hours</h3>
+      <p>42 hrs</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>Avg Quiz Score</h3>
+      <p>70%</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>Best Subject</h3>
+      <p>Maths</p>
+    </div>
+
+    <div class="summary-card">
+      <h3>Revision Due</h3>
+      <p>2 Topics</p>
+    </div>
+  </section>
+
+  <!-- STUDY TIME -->
+  <section class="card">
+    <h2>Study Time</h2>
+    <p>Total Hours: <strong>42 hrs</strong></p>
+    <p>Today: <strong>1.5 hrs</strong></p>
+    <p>Last Login: <strong>09:30 AM</strong></p>
+  </section>
+
+  <!-- TOPIC PROGRESS -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Topic Progress</h2>
+
+    <p>Maths</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:80%">80%</div>
+    </div>
+
+    <p style="margin-top:10px;">Artificial Intelligence</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:65%">65%</div>
+    </div>
+
+    <p style="margin-top:10px;">Machine Learning</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:60%">60%</div>
+    </div>
+
+    <p style="margin-top:10px;">NLP</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:45%">45%</div>
+    </div>
+  </section>
+
+  <!-- SUBTOPIC PROGRESS -->
+  <section class="card" style="margin-top:30px;">
+    <h2>AI – Subtopics</h2>
+
+    <p>Unit 1: Search Algorithms</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:70%">70%</div>
+    </div>
+
+    <p style="margin-top:10px;">Unit 2: Knowledge Representation</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:50%">50%</div>
+    </div>
+  </section>
+
+  <!-- QUIZ PERFORMANCE -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Quiz Performance</h2>
+
+    <p><strong>AI:</strong> Avg Score: 72% | Attempts: 5 | <span class="trend-up">⬆ Improving</span></p>
+    <p><strong>ML:</strong> Avg Score: 68% | Attempts: 4 | <span class="trend-down">⬇ Slight Drop</span></p>
+    <p><strong>NLP:</strong> Avg Score: 60% | Attempts: 3 | <span class="trend-up">⬆ Stable</span></p>
+  </section>
+
+  <!-- RETENTION & REVISION TRACKER -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Retention & Revision Tracker</h2>
+
+    <div class="retention-grid">
+      <div class="mini-card">
+        <h4>Artificial Intelligence</h4>
+        <p>Retention Score: <strong>78%</strong></p>
+        <p>Next Revision: <strong>Tomorrow</strong></p>
+      </div>
+
+      <div class="mini-card">
+        <h4>NLP</h4>
+        <p>Retention Score: <strong>58%</strong></p>
+        <p>Next Revision: <strong>Today</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI INSIGHT SUMMARY -->
+  <section class="card" style="margin-top:30px;">
+    <h2>AI Insight Summary</h2>
+
+    <div class="insight-box">
+      <h3>Personalized Learning Analysis</h3>
+      <p>
+        Your recent performance indicates strong improvement in Artificial Intelligence and consistent understanding in Maths.
+        However, NLP retention is lower after 3 days, suggesting that shorter revision intervals may improve long-term recall.
+        More quiz-based reinforcement is recommended for weaker subtopics.
+      </p>
+    </div>
+  </section>
+
+  <!-- STRENGTHS & WEAKNESSES -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Strengths & Weaknesses</h2>
+
+    <div class="sw-grid">
+      <div>
+        <h3>Strengths</h3>
+        <ul>
+          <li>AI – Classification</li>
+          <li>Maths – Probability</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Weaknesses</h3>
+        <ul>
+          <li>AI – Search Algorithms</li>
+          <li>NLP – Syntax Parsing</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STUDY RECOMMENDATIONS -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Recommended Next Steps</h2>
+
+    <div class="recommend-grid">
+      <div class="mini-card">
+        <h4>Revise Today</h4>
+        <p>NLP – Syntax Parsing</p>
+      </div>
+
+      <div class="mini-card">
+        <h4>Take Adaptive Quiz</h4>
+        <p>Artificial Intelligence</p>
+      </div>
+
+      <div class="mini-card">
+        <h4>Focus Area</h4>
+        <p>Knowledge Representation</p>
+      </div>
+
+      <div class="mini-card">
+        <h4>Suggested Session</h4>
+        <p>25 mins revision + 10 mins quiz</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADD NEW SUBJECT -->
+  <section class="card" style="margin-top:30px;">
+    <h2>Add New Subject ➕</h2>
+
+    <input type="text" class="subject-input" placeholder="Enter subject name" />
+    <button class="add-btn">Add Subject</button>
+  </section>
+
+</main>
+
+</body>
+</html>

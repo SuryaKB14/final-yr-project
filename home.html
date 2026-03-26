@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EZStudy Dashboard</title>
+  <link rel="stylesheet" href="css/home.css" />
+
+  <style>
+    /* Panels inside Home page */
+    .hidden-panel {
+      display: none;
+      background: #fff;
+      margin-top: 25px;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .hidden-panel.active {
+      display: block;
+    }
+
+    .panel-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .panel-note {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Task Table */
+    .task-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      margin-bottom: 20px;
+    }
+
+    .task-table th,
+    .task-table td {
+      border-bottom: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .task-table th {
+      background: #f5f5f5;
+      font-weight: 700;
+    }
+
+    .task-table input[type="text"],
+    .task-table input[type="number"] {
+      width: 90%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .add-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .add-btn:hover {
+      background: #43a047;
+    }
+
+    /* Pomodoro */
+    .pomodoro-settings {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .pomodoro-settings div {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .pomodoro-settings input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 8px;
+    }
+
+    .timer-mode {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    .timer-display {
+      text-align: center;
+      font-size: 56px;
+      font-weight: bold;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .timer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .timer-buttons button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .timer-buttons button:hover {
+      background: #43a047;
+    }
+
+    /* Clickable cards */
+    .rec-card {
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .rec-card:hover {
+      transform: translateY(-3px);
+      background: #d8ead7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2 class="logo">EZStudy</h2>
+    <nav>
+      <a href="home.html" class="active">🏠 Home</a>
+      <a href="tools.html">🛠 Tools</a>
+      <a href="progress.html">📊 Progress</a>
+      <a href="profile.html">👤 Profile</a>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <h1>Welcome Back !</h1>
+      <div class="user">Student</div>
+    </header>
+
+    <!-- Overview Cards -->
+    <section class="cards">
+      <div class="card">
+        <h3>Learning Level</h3>
+        <p>Intermediate</p>
+      </div>
+
+      <div class="card">
+        <h3>Cognitive Load</h3>
+        <p>Moderate</p>
+      </div>
+
+      <div class="card">
+        <h3>Adaptive Quiz Avg Score</h3>
+        <p>78%</p>
+      </div>
+
+      <div class="card">
+        <h3>Consistency</h3>
+        <p>Good</p>
+      </div>
+    </section>
+
+    <!-- Recommended Actions -->
+    <section class="recommendations">
+      <h2>Recommended Actions</h2>
+
+      <div class="rec-grid">
+        <div class="rec-card" onclick="togglePanel('actionPlanPanel')">Action Plan</div>
+        <div class="rec-card" onclick="togglePanel('pomodoroPanel')">Pomodoro Method</div>
+      </div>
+    </section>
+
+    <!-- Action Plan Panel -->
+    <section id="actionPlanPanel" class="hidden-panel">
+      <h2 class="panel-title">Today's Learning Plan</h2>
+      <p class="panel-note">Customize your study tasks for today (Maximum 7 tasks).</p>
+
+      <table class="task-table" id="taskTable">
+        <thead>
+          <tr>
+            <th>Done</th>
+            <th>S.No</th>
+            <th>Task Name</th>
+            <th>Minutes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>1</td>
+            <td><input type="text" placeholder="Enter task name"></td>
+            <td><input type="number" placeholder="mins"></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>2</td>
+            <td><input type="text" placeholder="Enter task name"></td>
+            <td><input type="number" placeholder="mins"></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>3</td>
+            <td><input type="text" placeholder="Enter task name"></td>
+            <td><input type="number" placeholder="mins"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button class="add-btn" onclick="addTask()">+ Add Task</button>
+    </section>
+
+    <!-- Pomodoro Panel -->
+    <section id="pomodoroPanel" class="hidden-panel">
+      <h2 class="panel-title">Pomodoro Timer</h2>
+      <p class="panel-note">Set your personalized study and break time.</p>
+
+      <div class="pomodoro-settings">
+        <div>
+          <label><strong>Study Time (minutes)</strong></label>
+          <input type="number" id="studyMinutes" value="25" min="5" max="180">
+        </div>
+
+        <div>
+          <label><strong>Break Time (minutes)</strong></label>
+          <input type="number" id="breakMinutes" value="5" min="5" max="60">
+        </div>
+      </div>
+
+      <div class="timer-mode" id="timerMode">Study Session</div>
+      <div class="timer-display" id="timerDisplay">25:00</div>
+
+      <div class="timer-buttons">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resetTimer()">Reset</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Toggle Panels
+    function togglePanel(panelId) {
+      const actionPanel = document.getElementById("actionPlanPanel");
+      const pomodoroPanel = document.getElementById("pomodoroPanel");
+
+      if (panelId === "actionPlanPanel") {
+        actionPanel.classList.toggle("active");
+        pomodoroPanel.classList.remove("active");
+      } else if (panelId === "pomodoroPanel") {
+        pomodoroPanel.classList.toggle("active");
+        actionPanel.classList.remove("active");
+      }
+    }
+
+    // Add task rows up to 7
+    function addTask() {
+      const table = document.getElementById("taskTable").getElementsByTagName("tbody")[0];
+      const rowCount = table.rows.length;
+
+      if (rowCount >= 7) {
+        alert("You can only add up to 7 tasks.");
+        return;
+      }
+
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td><input type="checkbox"></td>
+        <td>${rowCount + 1}</td>
+        <td><input type="text" placeholder="Enter task name"></td>
+        <td><input type="number" placeholder="mins"></td>
+      `;
+    }
+
+    // Pomodoro Timer
+    let timer;
+    let isRunning = false;
+    let isStudySession = true;
+    let timeLeft = 25 * 60;
+
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      document.getElementById("timerDisplay").textContent =
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+
+      if (timeLeft <= 0) {
+        const study = parseInt(document.getElementById("studyMinutes").value) || 25;
+        timeLeft = study * 60;
+      }
+
+      isRunning = true;
+      timer = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          isRunning = false;
+
+          if (isStudySession) {
+            alert("Study session complete! Time for a break.");
+            const breakTime = parseInt(document.getElementById("breakMinutes").value) || 5;
+            timeLeft = breakTime * 60;
+            document.getElementById("timerMode").textContent = "Break Time";
+          } else {
+            alert("Break over! Back to study.");
+            const study = parseInt(document.getElementById("studyMinutes").value) || 25;
+            timeLeft = study * 60;
+            document.getElementById("timerMode").textContent = "Study Session";
+          }
+
+          isStudySession = !isStudySession;
+          updateDisplay();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      isStudySession = true;
+
+      const study = parseInt(document.getElementById("studyMinutes").value) || 25;
+      timeLeft = study * 60;
+
+      document.getElementById("timerMode").textContent = "Study Session";
+      updateDisplay();
+    }
+
+    document.getElementById("studyMinutes").addEventListener("change", resetTimer);
+    updateDisplay();
+  </script>
+
+</body>
+</html>
