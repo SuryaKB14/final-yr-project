@@ -41,6 +41,9 @@ button {
 
 .result {
     margin-top: 20px;
+    background: #2c2c3c;
+    padding: 15px;
+    border-radius: 10px;
 }
 </style>
 </head>
@@ -49,22 +52,27 @@ button {
 
 <div class="container">
 
-<h1>📘 MCQ Quiz Generator</h1>
+<h1>📘 MCQ Quiz Generator (Adaptive)</h1>
 
 <input type="file" id="pdfFile" accept="application/pdf"><br>
-
-<select id="difficulty">
-    <option value="easy">Easy</option>
-    <option value="medium">Medium</option>
-    <option value="hard">Hard</option>
-</select>
 
 <input type="number" id="num" value="5" min="3" max="10">
 
 <br>
 
+<select id="topicSelect">
+  <option value="Functions">Functions</option>
+  <option value="Algebra">Algebra</option>
+  <option value="Geometry">Geometry</option>
+  <option value="Science">Science</option>
+  <option value="Blockchain">Blockchain</option>
+</select>
+
+<br>
+
 <button onclick="generateQuiz()">Generate Quiz</button>
 
+<div id="quizInfo"></div>
 <div id="quizContainer"></div>
 
 <button onclick="submitQuiz()" id="submitBtn" style="display:none;">Submit Answers</button>
@@ -76,12 +84,17 @@ button {
 <script>
 
 let mcqs = [];
+let currentDifficulty = "medium";
+let currentTopic = "Functions";
+const user_id = 1;   // IMPORTANT: use same user_id as backend DB
 
 async function generateQuiz() {
 
     const fileInput = document.getElementById("pdfFile");
-    const difficulty = document.getElementById("difficulty").value;
     const numQuestions = document.getElementById("num").value;
+    currentTopic = document.getElementById("topicSelect").value;
+
+    console.log("Selected Topic:", currentTopic);
 
     if (!fileInput.files.length) {
         alert("Upload a PDF first!");
@@ -90,20 +103,45 @@ async function generateQuiz() {
 
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
-    formData.append("difficulty", difficulty);
     formData.append("num_questions", numQuestions);
+    formData.append("user_id", user_id);
+    formData.append("topic", currentTopic);
 
     document.getElementById("quizContainer").innerHTML = "Generating quiz...";
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("quizInfo").innerHTML = "";
 
-    const res = await fetch("http://127.0.0.1:5000/generate-quiz", {
-        method: "POST",
-        body: formData
-    });
+    try {
+        const res = await fetch("http://127.0.0.1:5000/generate-quiz", {
+            method: "POST",
+            body: formData
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    mcqs = data.mcqs;
-    displayQuiz();
+        if (data.error) {
+            document.getElementById("quizContainer").innerHTML = "Error: " + data.error;
+            return;
+        }
+
+        
+        console.log("Difficulty:", data.difficulty);
+
+        currentDifficulty = data.difficulty;
+        mcqs = data.mcqs;
+
+        document.getElementById("quizInfo").innerHTML = `
+            <p><strong>Adaptive Difficulty:</strong> ${data.difficulty}</p>
+            <p><strong>Weak Topics:</strong> ${data.weak_topics.length ? data.weak_topics.join(", ") : "None"}</p>
+            <p><strong>Selected Topic:</strong> ${currentTopic}</p>
+        `;
+
+        displayQuiz();
+
+    } catch (error) {
+        console.error("Generate Quiz Error:", error);
+        document.getElementById("quizContainer").innerHTML = "Something went wrong while generating quiz.";
+    }
 }
 
 function displayQuiz() {
@@ -127,6 +165,7 @@ function displayQuiz() {
         container.innerHTML += `
             <div class="question">
                 <h3>Q${index + 1}. ${q.question}</h3>
+                <p><strong>Topic:</strong> ${q.topic}</p>
                 ${optionsHTML}
             </div>
         `;
@@ -135,10 +174,11 @@ function displayQuiz() {
     document.getElementById("submitBtn").style.display = "block";
 }
 
-function submitQuiz() {
+async function submitQuiz() {
 
     let score = 0;
     let resultHTML = "<h2>Results</h2>";
+    let responses = [];
 
     mcqs.forEach((q, index) => {
 
@@ -146,12 +186,30 @@ function submitQuiz() {
 
         if (!selected) {
             resultHTML += `<p>Q${index + 1}: Not answered</p>`;
+            responses.push({
+                question_text: q.question,
+                user_answer: "Not Answered",
+                correct_answer: q.correct_answer,
+                is_correct: false,
+                topic: q.topic,
+                difficulty_level: currentDifficulty
+            });
             return;
         }
 
         const userAnswer = selected.value;
+        const isCorrect = userAnswer === q.correct_answer;
 
-        if (userAnswer === q.correct_answer) {
+        responses.push({
+            question_text: q.question,
+            user_answer: userAnswer,
+            correct_answer: q.correct_answer,
+            is_correct: isCorrect,
+            topic: q.topic,
+            difficulty_level: currentDifficulty
+        });
+
+        if (isCorrect) {
             score++;
             resultHTML += `<p style="color:lightgreen;">Q${index + 1}: Correct! ${q.explanation}</p>`;
         } else {
@@ -160,8 +218,56 @@ function submitQuiz() {
     });
 
     resultHTML += `<h3>Score: ${score} / ${mcqs.length}</h3>`;
-
     document.getElementById("result").innerHTML = resultHTML;
+
+    // STEP 1: Save overall quiz result
+    try {
+        const saveQuizRes = await fetch("http://127.0.0.1:5000/save-quiz-result", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_id: user_id,
+                topic: currentTopic,
+                difficulty_level: currentDifficulty,
+                score: score,
+                total_questions: mcqs.length
+            })
+        });
+
+        const saveQuizData = await saveQuizRes.json();
+        console.log("Quiz Result Saved:", saveQuizData);
+
+        // STEP 2: Save each question response
+        if (saveQuizData.attempt_id) {
+            const saveResponsesRes = await fetch("http://127.0.0.1:5000/save-question-responses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    attempt_id: saveQuizData.attempt_id,
+                    responses: responses
+                })
+            });
+
+            const saveResponsesData = await saveResponsesRes.json();
+            console.log("Question Responses Saved:", saveResponsesData);
+        }
+
+        // STEP 3: Show adaptive confirmation
+        document.getElementById("result").innerHTML += `
+            <p style="color:lightblue;"><strong>Quiz performance saved successfully!</strong></p>
+            <p>Next quiz will adapt based on your weak topics.</p>
+        `;
+
+    } catch (error) {
+        console.error("Submit Quiz Error:", error);
+        document.getElementById("result").innerHTML += `
+            <p style="color:orange;"><strong>Quiz submitted, but saving to database failed.</strong></p>
+        `;
+    }
 }
 
 </script>
